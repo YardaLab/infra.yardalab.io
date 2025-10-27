@@ -1,0 +1,13 @@
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Allowed format:
+# type(scope): IYI-123 <commit message description>
+pattern='^(feat|fix|docs|style|refactor|test|chore|infra)(\([a-z0-9_-]+\))?: IYI-[0-9]+ .{1,}$'
+
+if ! echo "$commit_msg" | grep -Eq "$pattern"; then
+  echo "   Invalid commit message!"
+  echo "   Expected: type(scope): IYI-123 your message"
+  echo "   Example : feat(infra): IYI-2 initialize husky hooks"
+  exit 1
+fi
