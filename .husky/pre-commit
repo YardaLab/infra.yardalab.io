@@ -1,0 +1,2 @@
+echo "pre-commit running…"
+npm run lint && npm run format

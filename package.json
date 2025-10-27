@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "prepare": "husky",
+    "lint": "echo 'Lint check passed (placeholder)'",
+    "format": "echo 'Format check passed (placeholder)'"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
