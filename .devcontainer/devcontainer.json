@@ -14,7 +14,8 @@
     "vscode": {
       "extensions": [
         "hashicorp.terraform",
-        "EditorConfig.EditorConfig"
+        "EditorConfig.EditorConfig",
+        "ms-vscode.makefile-tools"
       ]
     }
   }
