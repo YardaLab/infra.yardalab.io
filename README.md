@@ -23,12 +23,53 @@ It defines the infrastructure for internal YardaLab services, including:
 ```
 infra.yardalab.io/
 ├── .devcontainer/        # Dev environment for GitHub Codespaces
-├── terraform/            # Terraform modules and configuration
-├── scripts/              # Deployment and maintenance scripts
+├── environments/         # Environment-specific Terraform configurations
+├── modules/              # Terraform modules and reusable components
 ├── .github/workflows/    # GitHub Actions for CI/CD
 ├── LICENSE               # Apache 2.0 license
 ├── CONTRIBUTING.md       # Contribution guidelines
 └── README.md             # Project documentation
+```
+
+---
+
+## Terraform usage and workflow
+
+### Initialize Terraform
+
+To set up the environment and initialize Terraform:
+
+```bash
+terraform init -migrate-state
+```
+
+This command downloads all required providers and initializes the backend.
+
+### Linting and validation
+
+Run the Terraform linter recursively to check for unused variables and syntax issues:
+
+```bash
+make lint
+```
+
+### Planning and applying changes
+
+Generate and review a Terraform plan before applying it:
+
+```bash
+make plan
+make apply
+```
+
+### Workspace management
+
+Each environment (e.g., `prod`, `staging`) resides under `environments/`.
+Use Terraform workspaces to isolate deployments:
+
+```bash
+terraform workspace list
+terraform workspace select prod
 ```
 
 ---
@@ -45,7 +86,7 @@ feature/IYI-<issue-number>-<short-description>
 Commits must reference the Jira issue key in the message:
 
 ```
-IYI-2: chore(repo): initialize infra repository
+feat(infra): IYI-10 initialize Terraform project
 ```
 
 After all subtasks are completed and reviewed, the branch is merged into `main` via a pull request linked to the Jira ticket.
