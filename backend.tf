@@ -3,30 +3,38 @@
 # Purpose: Define Terraform backend configuration for state storage.
 # Note:
 #   Variables (var.*) cannot be used in backend configuration.
-#   Environment-specific settings will be added later via
+#   Environment-specific settings can be added later via
 #   -backend-config files (e.g., dev.backend.hcl, prod.backend.hcl).
 # Author: YardaLab Infrastructure Team
+# Updated: 2025-11-06
 # ──────────────────────────────────────────────────────────────
 
 terraform {
-  required_version = ">= 1.9.0"
+  required_version = ">= 1.9.8"
 
   # ---------------------------------------------------------------------------
   # Backend Configuration
   # ---------------------------------------------------------------------------
   # This backend defines how Terraform stores and manages its state file.
-  # Currently, the project uses a LOCAL backend for simplicity and portability.
+  # The project now uses a REMOTE backend via Terraform Cloud (CLI-driven mode)
+  # to ensure centralized, consistent, and secure state management.
   #
-  # The state file (terraform.tfstate) is stored locally within the repository.
-  # This configuration is suitable for initial setup, prototyping, or
-  # Codespaces development environments.
+  # Each Terraform operation (init, plan, apply) will authenticate through
+  # Terraform Cloud using your personal TF_API_TOKEN credentials.
   #
-  # Future environments (e.g., Linode Object Storage, GCS, or Terraform Cloud)
-  # will override this using -backend-config files for centralized state
-  # management and remote locking.
+  # Workspace:
+  #   Organization: YardaLab
+  #   Workspace:    infra
+  #
+  # This configuration allows multiple contributors or CI/CD pipelines
+  # to share a single state file with remote locking and version history.
   # ---------------------------------------------------------------------------
 
-  backend "local" {
-    path = "terraform.tfstate"
+  cloud {
+    organization = "YardaLab"
+
+    workspaces {
+      name = "infra"
+    }
   }
 }
