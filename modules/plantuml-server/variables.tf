@@ -45,3 +45,21 @@ variable "restart_policy" {
   type        = string
   default     = "unless-stopped"
 }
+
+variable "domain" {
+  type        = string
+  description = "Optional custom domain for the PlantUML server."
+  default     = null
+}
+
+variable "ssl_enabled" {
+  type        = bool
+  description = "Enable or disable SSL termination in the reverse proxy."
+  default     = false
+}
+
+variable "theme" {
+  type        = string
+  description = "PlantUML rendering theme."
+  default     = "default"
+}

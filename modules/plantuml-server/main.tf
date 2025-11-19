@@ -34,7 +34,6 @@ resource "docker_container" "plantuml" {
   name  = var.name
   image = docker_image.plantuml.image_id
 
-  # Keep it internal to the VPS by binding to 127.0.0.1
   ports {
     internal = var.container_port
     external = var.host_port
@@ -51,10 +50,15 @@ resource "docker_container" "plantuml" {
 
   restart = var.restart_policy
 
+  env = compact([
+    "PLANTUML_THEME=${var.theme}",
+    var.domain != null ? "VIRTUAL_HOST=${var.domain}" : "",
+    var.ssl_enabled ? "SSL_ENABLED=1" : "SSL_ENABLED=0",
+  ])
+
   memory      = 0
   memory_swap = 0
 
-  # Use the new label block syntax (Terraform 1.6+ compatible)
   dynamic "labels" {
     for_each = merge({
       "com.yardalab.role"    = "doc-renderer",
