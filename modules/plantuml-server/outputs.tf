@@ -27,3 +27,13 @@ output "theme" {
   value       = var.theme
   description = "Selected PlantUML theme."
 }
+output "server_url" {
+  description = "Fully composed URL of the PlantUML server."
+
+  value = format(
+    "%s://%s:%d",
+    var.ssl_enabled ? "https" : "http",
+    var.domain,
+    var.external_port
+  )
+}

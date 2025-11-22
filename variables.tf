@@ -28,3 +28,28 @@ variable "gcp_project" {
   type        = string
   default     = ""
 }
+
+variable "domain" {
+  description = "Domain used for the PlantUML server."
+  type        = string
+  default     = "plantuml.yardalab.io"
+}
+
+variable "ssl_enabled" {
+  description = "Enable HTTPS for the PlantUML server."
+  type        = bool
+  default     = false
+}
+
+variable "theme" {
+  description = "Theme for the PlantUML server."
+  type        = string
+  default     = "default"
+}
+
+variable "external_port" {
+  description = "External port exposed for the PlantUML server."
+  type        = number
+  default     = 8080
+}
+

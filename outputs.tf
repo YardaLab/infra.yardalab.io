@@ -25,6 +25,11 @@ output "naming_prefix" {
   value       = local.naming_prefix
 }
 
+output "server_url" {
+  description = "URL of the PlantUML server returned from the module."
+  value       = module.plantuml-server.server_url
+}
+
 # -----------------------------------------------------------------------------
 # Module Outputs
 # Collect important values from submodules (e.g., endpoints, IDs, IPs).

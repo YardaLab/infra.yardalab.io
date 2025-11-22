@@ -63,3 +63,9 @@ variable "theme" {
   description = "PlantUML rendering theme."
   default     = "default"
 }
+
+variable "external_port" {
+  type        = number
+  description = "External port used to expose the PlantUML server."
+  default     = 80
+}
