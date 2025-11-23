@@ -35,7 +35,10 @@ module "plantuml-server" {
   domain        = var.domain
   ssl_enabled   = var.ssl_enabled
   theme         = var.theme
-  external_port = var.external_port
+  region        = var.region
+  root_password = var.root_password
+  internal_port = 8080
+  instance_type = var.instance_type
 }
 
 

@@ -1,17 +1,8 @@
-output "http_url" {
-  description = "Internal HTTP base URL"
-  value       = "http://${var.host_ip}:${var.host_port}"
-}
-
-output "container_id" {
-  description = "Container ID"
-  value       = docker_container.plantuml.id
-}
-
-output "volume_name" {
-  description = "Jetty tmp volume"
-  value       = docker_volume.jetty_tmp.name
-}
+# ──────────────────────────────────────────────────────────────
+# File: outputs.tf
+# Purpose: Output values from plantuml-server module
+# Clean version without Docker provider dependencies
+# ──────────────────────────────────────────────────────────────
 
 output "domain" {
   value       = var.domain
@@ -27,13 +18,14 @@ output "theme" {
   value       = var.theme
   description = "Selected PlantUML theme."
 }
+
 output "server_url" {
-  description = "Fully composed URL of the PlantUML server."
+  description = "Public URL of the PlantUML server (including /svg endpoint)."
 
   value = format(
-    "%s://%s:%d",
+    "%s://%s:%d/svg",
     var.ssl_enabled ? "https" : "http",
-    var.domain,
-    var.external_port
+    tolist(linode_instance.plantuml.ipv4)[0],
+    var.internal_port
   )
 }

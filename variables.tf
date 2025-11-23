@@ -47,9 +47,16 @@ variable "theme" {
   default     = "default"
 }
 
-variable "external_port" {
-  description = "External port exposed for the PlantUML server."
-  type        = number
-  default     = 8080
+variable "root_password" {
+  description = "Root password for Linode instance."
+  type        = string
+  sensitive   = true
 }
+
+variable "instance_type" {
+  description = "Linode instance type."
+  type        = string
+  default     = "g6-nanode-1"
+}
+
 

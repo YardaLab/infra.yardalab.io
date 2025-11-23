@@ -1,73 +1,59 @@
+# ──────────────────────────────────────────────────────────────
+# File: main.tf
+# Purpose: Deploy PlantUML server on Linode using StackScript
+# Author: YardaLab Infrastructure Team
+# ──────────────────────────────────────────────────────────────
+
 terraform {
   required_version = ">= 1.4.0"
+
   required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = ">= 3.0.2"
+    linode = {
+      source  = "linode/linode"
+      version = ">= 3.5.0"
     }
   }
 }
 
-# Pull image
-resource "docker_image" "plantuml" {
-  name         = var.image
-  keep_locally = true
+# -------------------------------------------------------------------
+# StackScript: Install Docker + PlantUML on Linode
+# -------------------------------------------------------------------
+resource "linode_stackscript" "plantuml" {
+  label       = "plantuml-bootstrap"
+  description = "Install Docker and run PlantUML server."
+  images      = ["linode/ubuntu22.04"]
+  is_public   = false
+
+  script = <<-EOT
+    #!/bin/bash
+    set -eux
+
+    apt-get update -y
+
+    # Install Docker
+    DEBIAN_FRONTEND=noninteractive \
+      apt-get install -y docker.io
+
+    systemctl enable docker
+    systemctl start docker
+
+    # Run PlantUML server
+    docker run -d \
+      --restart=always \
+      -p ${var.internal_port}:${var.internal_port} \
+      plantuml/plantuml-server:jetty
+  EOT
 }
 
-# Persistent tmp volume for Jetty (optional but helps avoid Linode churn)
-resource "docker_volume" "jetty_tmp" {
-  name = "${var.name}-jetty-tmp"
+# -------------------------------------------------------------------
+# Linode instance running PlantUML
+# -------------------------------------------------------------------
+resource "linode_instance" "plantuml" {
+  label     = "plantuml-server"
+  image     = "linode/ubuntu22.04"
+  region    = var.region
+  type      = var.instance_type
+  root_pass = var.root_password
 
-  dynamic "labels" {
-    for_each = merge({
-      "com.yardalab.service" = var.name
-    }, var.labels)
-    content {
-      label = labels.key
-      value = labels.value
-    }
-  }
-}
-
-# Container
-resource "docker_container" "plantuml" {
-  name  = var.name
-  image = docker_image.plantuml.image_id
-
-  ports {
-    internal = var.container_port
-    external = var.host_port
-    ip       = var.host_ip
-    protocol = "tcp"
-  }
-
-  mounts {
-    target    = "/var/lib/jetty/tmp"
-    type      = "volume"
-    source    = docker_volume.jetty_tmp.name
-    read_only = false
-  }
-
-  restart = var.restart_policy
-
-  env = compact([
-    "PLANTUML_THEME=${var.theme}",
-    var.domain != null ? "VIRTUAL_HOST=${var.domain}" : "",
-    var.ssl_enabled ? "SSL_ENABLED=1" : "SSL_ENABLED=0",
-  ])
-
-  memory      = 0
-  memory_swap = 0
-
-  dynamic "labels" {
-    for_each = merge({
-      "com.yardalab.role"    = "doc-renderer",
-      "com.yardalab.module"  = "plantuml-server",
-      "com.yardalab.exposed" = "http:${var.host_ip}:${var.host_port}"
-    }, var.labels)
-    content {
-      label = labels.key
-      value = labels.value
-    }
-  }
+  stackscript_id = linode_stackscript.plantuml.id
 }
