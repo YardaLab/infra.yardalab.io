@@ -28,3 +28,35 @@ variable "gcp_project" {
   type        = string
   default     = ""
 }
+
+variable "domain" {
+  description = "Domain used for the PlantUML server."
+  type        = string
+  default     = "plantuml.yardalab.io"
+}
+
+variable "ssl_enabled" {
+  description = "Enable HTTPS for the PlantUML server."
+  type        = bool
+  default     = false
+}
+
+variable "theme" {
+  description = "Theme for the PlantUML server."
+  type        = string
+  default     = "default"
+}
+
+variable "root_password" {
+  description = "Root password for Linode instance."
+  type        = string
+  sensitive   = true
+}
+
+variable "instance_type" {
+  description = "Linode instance type."
+  type        = string
+  default     = "g6-nanode-1"
+}
+
+
