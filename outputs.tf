@@ -30,6 +30,11 @@ output "server_url" {
   value       = module.plantuml-server.server_url
 }
 
+output "cloudflare_zone_id" {
+  description = "Zone ID used for Cloudflare resources"
+  value       = var.cloudflare_zone_id
+}
+
 # -----------------------------------------------------------------------------
 # Module Outputs
 # Collect important values from submodules (e.g., endpoints, IDs, IPs).

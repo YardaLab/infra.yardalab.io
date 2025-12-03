@@ -34,7 +34,7 @@ terraform {
     organization = "YardaLab"
 
     workspaces {
-      name = "infra"
+      name = "infrainfra"
     }
   }
 }
