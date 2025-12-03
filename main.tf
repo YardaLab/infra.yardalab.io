@@ -1,13 +1,15 @@
 # ──────────────────────────────────────────────────────────────
 # File: main.tf
 # Purpose: Root Terraform module for YardaLab infrastructure.
-# This file defines global locals and loads all submodules
-# (e.g., plantuml-server, database, networking, etc.).
+# This file defines global locals and loads all submodules.
 # Author: YardaLab Infrastructure Team
-# ──────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
+terraform {
+  required_version = ">= 1.4.0"
+}
 
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 # Global locals
 # Centralized naming conventions and reusable constants.
 # These locals ensure consistent naming across the entire infrastructure.
@@ -21,11 +23,10 @@ locals {
   naming_prefix = "${local.project_name}-${local.environment}"
 }
 
-
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 # PlantUML Server Module
 # This module deploys a Linode VPS with Docker + PlantUML server.
-# Added as part of task IYI-15 / IYI-20.
+# Added as part of tasks IYI-15 / IYI-20.
 # -----------------------------------------------------------------------------
 
 module "plantuml-server" {
@@ -41,8 +42,7 @@ module "plantuml-server" {
   instance_type = var.instance_type
 }
 
-
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 # Future Modules Placeholder
 # Additional modules will be added later, such as:
 # - Authentication server
@@ -50,8 +50,6 @@ module "plantuml-server" {
 # - Documentation renderer
 # - Reverse proxy (NGINX)
 # - Metrics / Monitoring stack
-#
-# These modules will follow the same structure and naming conventions.
 # -----------------------------------------------------------------------------
 
 # module "ylcore" {
@@ -59,7 +57,6 @@ module "plantuml-server" {
 #   environment = var.environment
 # }
 
-
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 # End of file
 # -----------------------------------------------------------------------------

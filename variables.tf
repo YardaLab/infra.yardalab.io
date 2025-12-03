@@ -59,4 +59,13 @@ variable "instance_type" {
   default     = "g6-nanode-1"
 }
 
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare Zone ID for yardalab.io"
+}
 
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token used to manage DNS for yardalab.io"
+  type        = string
+  sensitive   = true
+}
