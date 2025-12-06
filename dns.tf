@@ -1,7 +1,6 @@
-resource "cloudflare_record" "test" {
-  zone_id = var.cloudflare_zone_id
-  name    = "tf-test"
-  content = "1.1.1.1"
-  type    = "A"
-  ttl     = 120
+module "dns_records" {
+  source = "./dns"
+
+  cloudflare_zone_id = var.cloudflare_zone_id
+  plantuml_ip        = module.plantuml-server.ipv4_address
 }
