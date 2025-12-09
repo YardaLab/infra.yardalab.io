@@ -29,3 +29,8 @@ output "server_url" {
     var.internal_port
   )
 }
+
+output "ipv4_address" {
+  description = "Public IPv4 address of the PlantUML server."
+  value       = tolist(linode_instance.plantuml.ipv4)[0]
+}
