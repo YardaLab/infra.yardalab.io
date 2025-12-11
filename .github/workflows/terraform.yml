@@ -1,0 +1,63 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Terraform Pipeline (Skeleton)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # -----------------------------------------------------
+      # Checkout repository
+      # -----------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------
+      # Setup Terraform CLI
+      # -----------------------------------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      # -----------------------------------------------------
+      # Placeholder: Terraform Init
+      # Will be fully implemented in IYI-29
+      # -----------------------------------------------------
+      - name: Terraform Init
+        run: |
+          echo "Terraform init will be added in IYI-29"
+
+      # -----------------------------------------------------
+      # Placeholder: Terraform Format / Validate / Plan
+      # Implemented later in IYI-29 and IYI-30
+      # -----------------------------------------------------
+      - name: Placeholder - Terraform Format
+        run: echo "terraform fmt --check will be added in next subtasks"
+
+      - name: Placeholder - Terraform Validate
+        run: echo "terraform validate will be added in next subtasks"
+
+      - name: Placeholder - Terraform Plan
+        run: echo "terraform plan will be added in next subtasks"
+
+      # -----------------------------------------------------
+      # Placeholder for Apply (only on main)
+      # Completed in IYI-31
+      # -----------------------------------------------------
+      - name: Placeholder - Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: echo "terraform apply will be added in IYI-31"

@@ -1,13 +1,36 @@
-commit_msg_file=$1
-commit_msg=$(cat "$commit_msg_file")
+#!/usr/bin/env bash
+set -e
 
-# Allowed format:
-# type(scope): IYI-123 <commit message description>
+commit_msg_file="$1"
+commit_msg=$(cat "$commit_msg_file")
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+#
+# 1) Enforce test(...) commits only on test/*
+#
+case "$commit_msg" in
+  test\(*)
+    case "$branch_name" in
+      test/*)
+        # allowed
+        ;;
+      *)
+        echo "❌ Commit messages starting with test(...) are only allowed on test/* branches."
+        echo "   Current branch: $branch_name"
+        exit 1
+        ;;
+    esac
+    ;;
+esac
+
+#
+# 2) Validate commit format
+#
 pattern='^(feat|fix|docs|style|refactor|test|chore|infra)(\([a-z0-9_-]+\))?: IYI-[0-9]+ .{1,}$'
 
-if ! echo "$commit_msg" | grep -Eq "$pattern"; then
+echo "$commit_msg" | grep -Eq "$pattern" || {
   echo "   Invalid commit message!"
   echo "   Expected: type(scope): IYI-123 your message"
   echo "   Example : feat(infra): IYI-2 initialize husky hooks"
   exit 1
-fi
+}
