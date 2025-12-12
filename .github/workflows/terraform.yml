@@ -13,10 +13,8 @@ jobs:
   terraform:
     name: Terraform Pipeline (Skeleton)
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
 
     steps:
       # -----------------------------------------------------
@@ -33,13 +31,30 @@ jobs:
         with:
           terraform_version: 1.9.8
 
-      # -----------------------------------------------------
-      # Placeholder: Terraform Init
-      # Will be fully implemented in IYI-29
-      # -----------------------------------------------------
-      - name: Terraform Init
-        run: |
-          echo "Terraform init will be added in IYI-29"
+      # ----------------------------
+      # Prepare Terraform plugin cache dir
+      # ----------------------------
+      - name: Create Terraform plugin cache dir
+        run: mkdir -p ~/.terraform.d/plugin-cache
+
+      # ----------------------------
+      # Cache Terraform plugins + modules
+      # ----------------------------
+      - name: Cache Terraform
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.terraform.d/plugin-cache
+            .terraform
+          key: terraform-${{ runner.os }}-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+            terraform-${{ runner.os }}-
+
+      # ----------------------------
+      # Terraform fmt (strict)
+      # ----------------------------
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
 
       # -----------------------------------------------------
       # Placeholder: Terraform Format / Validate / Plan
