@@ -1,0 +1,84 @@
+# NOTE:
+# terraform_unused_declarations must be ignored per-variable.
+# File-level ignore is NOT supported by tflint.
+
+terraform {
+  required_version = ">= 1.5.0"
+}
+
+/**
+ * voip-server module
+ *
+ * Public input interface.
+ * This file defines the stable contract between the module
+ * and its consumers. No implementation logic allowed here.
+ */
+
+############################################
+# Required variables
+############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "region" {
+  description = "Linode region where the VoIP server will be deployed (e.g. eu-central)."
+  type        = string
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "instance_type" {
+  description = "Linode instance type (e.g. g6-nanode-1, g6-standard-1)."
+  type        = string
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "image" {
+  description = "Linode image to use for the instance (e.g. linode/ubuntu22.04)."
+  type        = string
+}
+
+############################################
+# Optional variables
+############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "hostname" {
+  description = "Hostname assigned to the VoIP server."
+  type        = string
+  default     = null
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "tags" {
+  description = "List of tags assigned to the Linode instance."
+  type        = list(string)
+  default     = []
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "enable_ipv6" {
+  description = "Whether IPv6 should be enabled for the instance."
+  type        = bool
+  default     = false
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "ssh_keys" {
+  description = "List of SSH public keys allowed to access the server."
+  type        = list(string)
+  default     = []
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "root_password" {
+  description = "Root password for the instance. If null, password authentication may be disabled."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "cloud_init_template" {
+  description = "Optional cloud-init template content used to bootstrap the server."
+  type        = string
+  default     = null
+}
