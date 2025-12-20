@@ -82,9 +82,20 @@ variable "root_password" {
   sensitive   = true
 }
 
+############################################
+# Cloud-init (optional)
+############################################
+
 # tflint-ignore: terraform_unused_declarations
 variable "cloud_init_template" {
-  description = "Optional cloud-init template content used to bootstrap the server."
-  type        = string
-  default     = null
+  description = <<EOT
+Optional cloud-init / user-data content.
+
+This module does not define or manage any provisioning logic.
+The content is passed as-is to the Linode instance.
+If null, cloud-init is disabled.
+EOT
+
+  type    = string
+  default = null
 }
