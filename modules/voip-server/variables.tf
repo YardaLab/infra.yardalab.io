@@ -19,6 +19,12 @@ terraform {
 ############################################
 
 # tflint-ignore: terraform_unused_declarations
+variable "name" {
+  description = "Linode instance label (resource name visible in Linode UI)."
+  type        = string
+}
+
+# tflint-ignore: terraform_unused_declarations
 variable "region" {
   description = "Linode region where the VoIP server will be deployed (e.g. eu-central)."
   type        = string
