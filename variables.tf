@@ -1,20 +1,16 @@
-# environment, region, linode_token, root_password, project_name
+############################################
+# File: variables.tf
+# Scope: Root / global infrastructure variables
+# Purpose: Environment-specific configuration
+############################################
+
+# --------------------------------------------------
+# Environment
+# --------------------------------------------------
 variable "environment" {
   description = "The target deployment environment (e.g., dev, staging, prod)."
   type        = string
   default     = "dev"
-}
-
-variable "region" {
-  description = "Primary region for resource deployment."
-  type        = string
-  default     = "eu-central-1"
-}
-
-variable "linode_token" {
-  description = "Linode API token used for authentication."
-  type        = string
-  sensitive   = true
 }
 
 variable "project_name" {
@@ -23,28 +19,28 @@ variable "project_name" {
   default     = "yardalab"
 }
 
-variable "gcp_project" {
-  description = "Google Cloud project ID (used by the google provider)."
+# --------------------------------------------------
+# Region & provider configuration
+# --------------------------------------------------
+variable "region" {
+  description = "Primary region for resource deployment."
   type        = string
-  default     = ""
+  default     = "eu-central"
 }
 
-variable "domain" {
-  description = "Domain used for the PlantUML server."
+variable "linode_token" {
+  description = "Linode API token used for authentication."
   type        = string
-  default     = "plantuml.yardalab.io"
+  sensitive   = true
 }
 
-variable "ssl_enabled" {
-  description = "Enable HTTPS for the PlantUML server."
-  type        = bool
-  default     = false
-}
-
-variable "theme" {
-  description = "Theme for the PlantUML server."
+# --------------------------------------------------
+# Compute / instance configuration
+# --------------------------------------------------
+variable "instance_type" {
+  description = "Linode instance type."
   type        = string
-  default     = "default"
+  default     = "g6-nanode-1"
 }
 
 variable "root_password" {
@@ -53,15 +49,42 @@ variable "root_password" {
   sensitive   = true
 }
 
-variable "instance_type" {
-  description = "Linode instance type."
+# --------------------------------------------------
+# Networking / domain
+# --------------------------------------------------
+variable "domain" {
+  description = "Domain used for the service (e.g. plantuml.yardalab.io)."
   type        = string
-  default     = "g6-nanode-1"
+  default     = "plantuml.yardalab.io"
 }
 
-variable "cloudflare_zone_id" {
+variable "ssl_enabled" {
+  description = "Enable HTTPS / SSL for the service."
+  type        = bool
+  default     = false
+}
+
+# --------------------------------------------------
+# Optional / feature flags
+# --------------------------------------------------
+variable "theme" {
+  description = "Theme identifier (used by some services like PlantUML)."
   type        = string
+  default     = "default"
+}
+
+variable "gcp_project" {
+  description = "Google Cloud project ID (optional, provider-specific)."
+  type        = string
+  default     = ""
+}
+
+# --------------------------------------------------
+# Cloudflare
+# --------------------------------------------------
+variable "cloudflare_zone_id" {
   description = "Cloudflare Zone ID for yardalab.io"
+  type        = string
 }
 
 variable "cloudflare_api_token" {
