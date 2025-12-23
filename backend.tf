@@ -1,40 +1,40 @@
 # ──────────────────────────────────────────────────────────────
 # File: backend.tf
-# Purpose: Define Terraform backend configuration for state storage.
-# Note:
-#   Variables (var.*) cannot be used in backend configuration.
-#   Environment-specific settings can be added later via
-#   -backend-config files (e.g., dev.backend.hcl, prod.backend.hcl).
+# Purpose: Define Terraform Cloud backend configuration for state storage.
+#
+# Mode: VCS-driven workspaces (Terraform Cloud)
+#
+# Notes:
+# - Workspace selection is handled by Terraform Cloud based on the
+#   workspace-to-repository (and working directory) mapping.
+# - This backend configuration is intentionally workspace-agnostic.
+# - No workspace name or tags are hardcoded here.
+# - Variables (var.*) cannot be used in backend configuration.
+#
 # Author: YardaLab Infrastructure Team
-# Updated: 2025-11-06
+# Updated: 2025-12-23
 # ──────────────────────────────────────────────────────────────
 
 terraform {
   required_version = ">= 1.9.8"
 
   # ---------------------------------------------------------------------------
-  # Backend Configuration
+  # Terraform Cloud Backend (VCS-driven)
   # ---------------------------------------------------------------------------
-  # This backend defines how Terraform stores and manages its state file.
-  # The project now uses a REMOTE backend via Terraform Cloud (CLI-driven mode)
-  # to ensure centralized, consistent, and secure state management.
+  # This repository uses Terraform Cloud for remote state management.
   #
-  # Each Terraform operation (init, plan, apply) will authenticate through
-  # Terraform Cloud using your personal TF_API_TOKEN credentials.
+  # Workspaces are defined and managed directly in Terraform Cloud and are
+  # connected to this repository via VCS integration. Each workspace controls:
   #
-  # Workspace:
-  #   Organization: YardaLab
-  #   Workspace:    infra
+  # - which branch is used
+  # - which working directory is executed
+  # - which variables and secrets are applied
   #
-  # This configuration allows multiple contributors or CI/CD pipelines
-  # to share a single state file with remote locking and version history.
+  # The active workspace is determined by Terraform Cloud at runtime.
+  # No workspace selection logic exists in this repository.
   # ---------------------------------------------------------------------------
 
   cloud {
     organization = "YardaLab"
-
-    workspaces {
-      name = "infrainfra"
-    }
   }
 }
