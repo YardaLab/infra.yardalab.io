@@ -33,12 +33,76 @@ This module **does not**:
 
 ---
 
+## Environments
+
+This module supports **multiple deployment environments** (for example `dev`, `staging`, `prod`) **without any code changes**.
+
+### Environment selection
+
+The active environment is selected **outside of the module**, typically via:
+
+* **Terraform Cloud workspaces** (recommended)
+* or environment-specific `*.tfvars` files (local / reference use)
+
+The module itself remains environment-agnostic and relies solely on input variables.
+
+### `environment` variable
+
+The required `environment` variable identifies the target deployment environment:
+
+```hcl
+environment = "dev" | "staging" | "prod"
+```
+
+This variable is intended for:
+
+* consistent environment identification
+* naming and tagging at higher infrastructure layers
+* documentation and audit clarity
+
+> The module does not hardcode any environment-specific behavior.
+
+---
+
+## Variable types
+
+### Non-sensitive variables
+
+Non-sensitive variables are defined in `variables.tf` and may differ per environment:
+
+* `environment`
+* `region`
+* `instance_type`
+* `image`
+* `hostname`
+* `tags`
+* `enable_ipv6`
+* `ssh_keys`
+
+These values are typically set:
+
+* per Terraform Cloud workspace, or
+* via `*.tfvars` files for local usage
+
+### Sensitive variables
+
+Sensitive values **must not** be committed to the repository.
+
+The following inputs are marked as sensitive and are expected to be provided securely:
+
+* `root_password`
+
+When using Terraform Cloud, sensitive variables should be stored as **Sensitive Variables** in the workspace.
+
+---
+
 ## Example Usage
 
 ```hcl
 module "voip_server" {
   source = "../../modules/voip-server"
 
+  environment   = "prod"
   name          = "voip-prod"
   region        = "eu-central"
   instance_type = "g6-standard-1"
@@ -60,6 +124,7 @@ user-data.
 
 | Name                  | Type           | Required | Description                                  |
 | --------------------- | -------------- | -------- | -------------------------------------------- |
+| `environment`         | `string`       | yes      | Deployment environment (`dev`, `staging`, `prod`) |
 | `name`                | `string`       | yes      | Linode instance label (visible in Linode UI) |
 | `region`              | `string`       | yes      | Linode region (e.g. `eu-central`)            |
 | `instance_type`       | `string`       | yes      | Linode instance type                         |
@@ -99,3 +164,10 @@ user-data.
 * IYI-36 — VoIP server module
 * IYI-49 — Cloud-init support
 * IYI-39 — Cloud-init provisioning (planned)
+
+---
+
+## Requirements
+
+* Terraform `>= 1.5.0`
+* Linode provider configured by the calling stack
