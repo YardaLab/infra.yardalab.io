@@ -15,6 +15,21 @@ terraform {
  */
 
 ############################################
+# Environment
+############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "environment" {
+  description = "Deployment environment (dev, staging, prod)."
+  type        = string
+
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "environment must be one of: dev, staging, prod"
+  }
+}
+
+############################################
 # Required variables
 ############################################
 
