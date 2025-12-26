@@ -5,16 +5,11 @@
 # ──────────────────────────────────────────────────────────────
 
 module "plantuml_server" {
-  source = "../../modules/plantuml-server"
+  source = "git::https://github.com/YardaLab/infra.yardalab.io.git//modules/plantuml-server?ref=feature/IYI-37-create-linode-instance"
 
-  # Infrastructure parameters
   region        = var.region
   instance_type = var.instance_type
-
-  # Runtime / bootstrap parameters
   internal_port = var.internal_port
   root_password = var.root_password
-
-  # Public domain (used by Caddy inside the module)
-  domain = var.domain
+  domain        = var.domain
 }
