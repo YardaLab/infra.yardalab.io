@@ -1,20 +1,44 @@
 # infra.yardalab.io
 
-Infrastructure as Code for the YardaLab ecosystem.
-This repository contains Terraform configurations, deployment scripts, and infrastructure modules used to provision and manage YardaLab services.
+Infrastructure as Code for the **YardaLab ecosystem**.
 
-Currently, it is used to deploy and maintain the **PlantUML server** running at [`plantuml.yardalab.io`](https://plantuml.yardalab.io).
+This repository contains Terraform configurations, reusable infrastructure modules, and root stack definitions used to provision and operate YardaLab services using a **stack-based Terraform architecture**.
+
+At present, the infrastructure is primarily used to deploy and maintain:
+
+* **PlantUML server** available at [`plantuml.yardalab.io`](https://plantuml.yardalab.io)
+* **Foundational infrastructure components** intended for future services (for example, VoIP / PBX)
 
 ---
 
 ## Purpose
 
-This repository serves as the central place for all infrastructure-related automation and provisioning.
-It defines the infrastructure for internal YardaLab services, including:
+This repository serves as the **single source of truth** for all YardaLab infrastructure.
 
-* **PlantUML server** — containerized diagram rendering service
-* **CI/CD pipelines** — for automatic updates and prebuilds
-* **Terraform modules** — reusable building blocks for multi-environment setup
+Its goals are to:
+
+* Provide a **clear, auditable infrastructure model**
+* Enable **independent lifecycle management** of individual services
+* Encourage reuse through **well-defined and composable Terraform modules**
+* Support long-term growth without coupling unrelated services
+
+Infrastructure is intentionally organized into **independent Terraform stacks**, each with its own state and execution context.
+
+---
+
+## Architecture model
+
+YardaLab infrastructure follows a **stack-based Terraform architecture**:
+
+* Each service (for example, PlantUML or VoIP) is represented by its **own root stack**
+* Each stack has:
+
+  * an isolated Terraform state
+  * a dedicated Terraform Cloud workspace
+  * an independent lifecycle (`plan`, `apply`, `destroy`)
+* Shared logic is implemented exclusively through reusable Terraform modules
+
+This model reduces blast radius, simplifies auditing and rollbacks, and enables safe expansion as additional services are introduced.
 
 ---
 
@@ -22,76 +46,91 @@ It defines the infrastructure for internal YardaLab services, including:
 
 ```
 infra.yardalab.io/
-├── .devcontainer/        # Dev environment for GitHub Codespaces
-├── environments/         # Environment-specific Terraform configurations
-├── modules/              # Terraform modules and reusable components
+├── stacks/               # Root Terraform stacks (one per service)
+│   ├── plantuml/         # PlantUML infrastructure stack
+│   └── voip/             # VoIP / PBX infrastructure stack (foundation)
+├── modules/              # Reusable Terraform modules
+├── .devcontainer/        # Development environment for GitHub Codespaces
 ├── .github/workflows/    # GitHub Actions for CI/CD
 ├── LICENSE               # Apache 2.0 license
 ├── CONTRIBUTING.md       # Contribution guidelines
-└── README.md             # Project documentation
+└── README.md             # Repository documentation
 ```
 
 ---
 
 ## Terraform usage and workflow
 
-### Initialize Terraform
+### Stack-based workflow
 
-To set up the environment and initialize Terraform:
+Each directory under `stacks/` is a **standalone Terraform root module**.
+
+Typical workflow:
 
 ```bash
-terraform init -migrate-state
+cd stacks/<stack-name>
+terraform init
+terraform plan
+terraform apply
 ```
 
-This command downloads all required providers and initializes the backend.
+Stacks are designed to be planned, applied, and destroyed independently of one another.
 
-### Linting and validation
+---
 
-Run the Terraform linter recursively to check for unused variables and syntax issues:
+### Terraform Cloud
 
-```bash
-make lint
-```
+Terraform state is managed using **Terraform Cloud**.
 
-### Planning and applying changes
+* Each stack maps to a **dedicated Terraform Cloud workspace**
+* Workspace configuration points to the corresponding `stacks/<name>` directory
+* Sensitive values (such as tokens or passwords) are stored as Terraform Cloud variables
 
-Generate and review a Terraform plan before applying it:
+This approach provides secure secret handling, auditable state history, and reproducible deployments.
 
-```bash
-make plan
-make apply
-```
+---
 
-### Workspace management
+### Module versioning
 
-Each environment (e.g., `prod`, `staging`) resides under `environments/`.
-Use Terraform workspaces to isolate deployments:
+Terraform modules are consumed via **immutable Git references (tags)**.
 
-```bash
-terraform workspace list
-terraform workspace select prod
+This ensures:
+
+* reproducible and deterministic plans
+* protection against deleted or rebased branches
+* predictable infrastructure behavior during reviews and audits
+
+Example module source reference:
+
+```hcl
+source = "git::https://github.com/YardaLab/infra.yardalab.io.git//modules/plantuml-server?ref=<tag>"
 ```
 
 ---
 
 ## Development workflow
 
-All work on this repository is tracked via Jira issues under the **IYI** project key.
-Each implementation task must be performed on a dedicated branch named after the Jira issue:
+All changes to this repository follow a controlled development workflow.
+
+### Branching strategy
+
+Each change is implemented on a dedicated branch:
 
 ```
-feature/IYI-<issue-number>-<short-description>
+feature/<short-description>
 ```
 
-Commits must reference the Jira issue key in the message:
+Branches are short-lived and represent a single logical change.
 
-```
-feat(infra): IYI-10 initialize Terraform project
-```
+### Commits and pull requests
 
-After all subtasks are completed and reviewed, the branch is merged into `main` via a pull request linked to the Jira ticket.
+* Commits should be atomic and descriptive
+* All changes are merged into `main` via pull requests
+* Branches are automatically deleted after merge
 
-For more detailed contribution rules, see the [`CONTRIBUTING.md`](./CONTRIBUTING.md) file.
+This workflow ensures traceability, reviewability, and long-term maintainability of the infrastructure codebase.
+
+For detailed contribution rules, see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---
 
