@@ -1,18 +1,3 @@
-# NOTE:
-# terraform_unused_declarations must be ignored per-variable.
-# File-level ignore is NOT supported by tflint.
-
-terraform {
-  required_version = ">= 1.5.0"
-
-    required_providers {
-    linode = {
-      source  = "linode/linode"
-      version = ">= 3.5.0"
-    }
-  }
-}
-
 /**
  * voip-server module
  *
