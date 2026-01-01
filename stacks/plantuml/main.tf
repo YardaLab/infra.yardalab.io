@@ -5,7 +5,7 @@
 # ──────────────────────────────────────────────────────────────
 
 module "plantuml_server" {
-  source = "git::https://github.com/YardaLab/infra.yardalab.io.git//modules/plantuml-server?ref=feature/IYI-37-create-linode-instance"
+  source = "git::https://github.com/YardaLab/infra.yardalab.io.git//modules/plantuml-server?ref=v0.1.0-plantuml"
 
   region        = var.region
   instance_type = var.instance_type

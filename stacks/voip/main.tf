@@ -1,5 +1,5 @@
 module "voip_server" {
-  source = "git::https://github.com/YardaLab/infra.yardalab.io.git//modules/voip-server?ref=feature/IYI-37-create-linode-instance"
+  source = "git::https://github.com/YardaLab/infra.yardalab.io.git//modules/voip-server?ref=v0.1.0-voip"
 
   name          = var.name
   environment   = var.environment
