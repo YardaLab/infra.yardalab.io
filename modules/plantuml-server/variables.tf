@@ -51,12 +51,6 @@ variable "ssl_enabled" {
   default     = false
 }
 
-variable "theme" {
-  description = "PlantUML theme used during diagram rendering."
-  type        = string
-  default     = "default"
-}
-
 # -------------------------------------------------------------------
 # End of file
 # -------------------------------------------------------------------

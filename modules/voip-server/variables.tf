@@ -1,11 +1,3 @@
-# NOTE:
-# terraform_unused_declarations must be ignored per-variable.
-# File-level ignore is NOT supported by tflint.
-
-terraform {
-  required_version = ">= 1.5.0"
-}
-
 /**
  * voip-server module
  *
@@ -13,6 +5,21 @@ terraform {
  * This file defines the stable contract between the module
  * and its consumers. No implementation logic allowed here.
  */
+
+############################################
+# Environment
+############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "environment" {
+  description = "Deployment environment (dev, staging, prod)."
+  type        = string
+
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "environment must be one of: dev, staging, prod"
+  }
+}
 
 ############################################
 # Required variables
