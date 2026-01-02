@@ -17,3 +17,11 @@ output "hostname" {
   description = "Hostname (label) of the VoIP server"
   value       = linode_instance.this.label
 }
+
+output "firewall_inbound_rules" {
+  description = "Normalized inbound firewall rules for SIP/RTP (spec only)"
+  value = concat(
+    local.sip_firewall_rules,
+    local.rtp_firewall_rules
+  )
+}

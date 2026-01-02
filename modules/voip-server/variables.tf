@@ -106,3 +106,85 @@ EOT
   type    = string
   default = null
 }
+
+############################################
+# VoIP firewall – SIP / RTP specification
+############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "sip_ports" {
+  description = <<EOT
+SIP signaling ports exposed by the VoIP server.
+
+Default reflects standard Asterisk / FreePBX setup:
+- UDP 5060 (SIP)
+
+TLS (5061) is intentionally out of scope for now.
+EOT
+
+  type = list(object({
+    protocol = string
+    port     = number
+  }))
+
+  default = [
+    {
+      protocol = "udp"
+      port     = 5060
+    }
+  ]
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "sip_source_cidrs" {
+  description = <<EOT
+Allowed source CIDR ranges for SIP signaling traffic.
+
+This should ideally contain SIP trunk / SBC provider IP ranges
+(e.g. O2 SIP trunk).
+
+If empty, the firewall implementation must treat this as
+"provider allowlist pending" and handle it explicitly.
+EOT
+
+  type    = list(string)
+  default = []
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "rtp_port_range" {
+  description = <<EOT
+RTP media port range used for VoIP calls.
+
+Default reflects Asterisk / FreePBX defaults.
+EOT
+
+  type = object({
+    protocol = string
+    from     = number
+    to       = number
+  })
+
+  default = {
+    protocol = "udp"
+    from     = 10000
+    to       = 20000
+  }
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "rtp_source_cidrs" {
+  description = <<EOT
+Allowed source CIDR ranges for RTP media traffic.
+
+By default, RTP is temporarily allowed from any source
+to enable initial call testing before provider IP ranges
+are confirmed.
+
+This MUST be restricted in production once provider
+media IP ranges are known.
+EOT
+
+  type    = list(string)
+  default = ["0.0.0.0/0"]
+}
