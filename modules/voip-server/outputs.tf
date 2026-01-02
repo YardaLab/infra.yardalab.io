@@ -18,10 +18,22 @@ output "hostname" {
   value       = linode_instance.this.label
 }
 
+############################################
+# Firewall specification outputs (IYI-57)
+############################################
+
 output "firewall_inbound_rules" {
-  description = "Normalized inbound firewall rules for SIP/RTP (spec only)"
-  value = concat(
-    local.sip_firewall_rules,
-    local.rtp_firewall_rules
-  )
+  description = <<EOT
+Normalized inbound firewall rule specification derived from module inputs.
+
+This output represents the complete inbound rule set defined by IYI-57:
+- SSH administration access (TCP/22, restricted source CIDRs)
+- SIP signaling (UDP/TCP 5060, provider IP ranges)
+- RTP media traffic (UDP port range, controlled via allow_rtp_from_any)
+
+This output is SPECIFICATION ONLY.
+It does NOT apply or modify any firewall resources.
+EOT
+
+  value = local.inbound_firewall_rules
 }

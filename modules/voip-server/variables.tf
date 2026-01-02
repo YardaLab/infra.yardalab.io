@@ -108,8 +108,20 @@ EOT
 }
 
 ############################################
-# VoIP firewall – SIP / RTP specification
+# VoIP firewall – inbound specification (IYI-57)
 ############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "ssh_source_cidrs" {
+  description = <<EOT
+Allowed source CIDR ranges for SSH access (TCP/22).
+
+This MUST be restricted to administrator IPs or VPN ranges.
+Inbound SSH access is never allowed from 0.0.0.0/0.
+EOT
+
+  type = list(string)
+}
 
 # tflint-ignore: terraform_unused_declarations
 variable "sip_ports" {
@@ -140,11 +152,11 @@ variable "sip_source_cidrs" {
   description = <<EOT
 Allowed source CIDR ranges for SIP signaling traffic.
 
-This should ideally contain SIP trunk / SBC provider IP ranges
+This should contain SIP trunk / SBC provider IP ranges
 (e.g. O2 SIP trunk).
 
-If empty, the firewall implementation must treat this as
-"provider allowlist pending" and handle it explicitly.
+Empty list means provider allowlist is pending
+and must be handled explicitly by firewall logic.
 EOT
 
   type    = list(string)
@@ -177,14 +189,25 @@ variable "rtp_source_cidrs" {
   description = <<EOT
 Allowed source CIDR ranges for RTP media traffic.
 
-By default, RTP is temporarily allowed from any source
-to enable initial call testing before provider IP ranges
-are confirmed.
+Used when allow_rtp_from_any = false.
 
-This MUST be restricted in production once provider
-media IP ranges are known.
+In production, this MUST be restricted to provider media IP ranges.
 EOT
 
   type    = list(string)
-  default = ["0.0.0.0/0"]
+  default = []
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "allow_rtp_from_any" {
+  description = <<EOT
+Temporary flag to allow RTP media traffic from any source (0.0.0.0/0).
+
+This is intended ONLY for initial call testing.
+
+It MUST be set to false in production environments.
+EOT
+
+  type    = bool
+  default = true
 }
