@@ -43,8 +43,9 @@ resource "linode_firewall" "pbx" {
   }
 
   # ====================
-  # TARGET
+  # TARGET (IYI-59)
   # ====================
+  # Explicit attachment of firewall to PBX VPS
   linodes = [
     linode_instance.this.id
   ]
