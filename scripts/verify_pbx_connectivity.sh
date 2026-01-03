@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOST="$1"
+HOST="${1:-}"
 USER="${2:-root}"
 
-if [[ -z "${HOST}" ]]; then
+if [ -z "$HOST" ]; then
   echo "Usage: $0 <PBX_IP_OR_HOSTNAME> [ssh_user]"
   exit 1
 fi
@@ -14,7 +14,7 @@ echo "Target: ${USER}@${HOST}"
 echo
 
 echo "[1/4] SSH connectivity"
-ssh -o BatchMode=yes -o ConnectTimeout=5 "${USER}@${HOST}" "echo 'SSH OK'"
+ssh -o BatchMode=yes -o ConnectTimeout=5 "${USER}@${HOST}" "echo SSH OK"
 
 echo
 echo "[2/4] Outbound DNS"
