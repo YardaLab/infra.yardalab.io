@@ -106,3 +106,108 @@ EOT
   type    = string
   default = null
 }
+
+############################################
+# VoIP firewall – inbound specification (IYI-57)
+############################################
+
+# tflint-ignore: terraform_unused_declarations
+variable "ssh_source_cidrs" {
+  description = <<EOT
+Allowed source CIDR ranges for SSH access (TCP/22).
+
+This MUST be restricted to administrator IPs or VPN ranges.
+Inbound SSH access is never allowed from 0.0.0.0/0.
+EOT
+
+  type = list(string)
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "sip_ports" {
+  description = <<EOT
+SIP signaling ports exposed by the VoIP server.
+
+Default reflects standard Asterisk / FreePBX setup:
+- UDP 5060 (SIP)
+
+TLS (5061) is intentionally out of scope for now.
+EOT
+
+  type = list(object({
+    protocol = string
+    port     = number
+  }))
+
+  default = [
+    {
+      protocol = "udp"
+      port     = 5060
+    }
+  ]
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "sip_source_cidrs" {
+  description = <<EOT
+Allowed source CIDR ranges for SIP signaling traffic.
+
+This should contain SIP trunk / SBC provider IP ranges
+(e.g. O2 SIP trunk).
+
+Empty list means provider allowlist is pending
+and must be handled explicitly by firewall logic.
+EOT
+
+  type    = list(string)
+  default = []
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "rtp_port_range" {
+  description = <<EOT
+RTP media port range used for VoIP calls.
+
+Default reflects Asterisk / FreePBX defaults.
+EOT
+
+  type = object({
+    protocol = string
+    from     = number
+    to       = number
+  })
+
+  default = {
+    protocol = "udp"
+    from     = 10000
+    to       = 20000
+  }
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "rtp_source_cidrs" {
+  description = <<EOT
+Allowed source CIDR ranges for RTP media traffic.
+
+Used when allow_rtp_from_any = false.
+
+In production, this MUST be restricted to provider media IP ranges.
+EOT
+
+  type    = list(string)
+  default = []
+}
+
+# tflint-ignore: terraform_unused_declarations
+variable "allow_rtp_from_any" {
+  description = <<EOT
+Temporary flag to allow RTP media traffic from any source (0.0.0.0/0).
+
+This is intended ONLY for initial call testing.
+
+It MUST be set to false in production environments.
+EOT
+
+  type    = bool
+  default = true
+}
