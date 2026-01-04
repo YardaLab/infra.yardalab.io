@@ -14,15 +14,27 @@ package_update: true
 package_upgrade: false
 
 packages:
-  - ca-certificates
-  - curl
-  - gnupg
-  - jq
-  - htop
-  - unzip
-  - vim
-  - git
-  - sudo
+  # --- Base utilities ---
+  - ca-certificates   # TLS trust store for HTTPS, APIs, package verification
+  - curl              # API calls, health checks, bootstrap scripts
+  - wget              # Simple file retrieval fallback
+  - gnupg             # Key verification (signatures, repo trust)
+  - lsb-release       # OS metadata for scripts & diagnostics
+
+  # --- System & debugging ---
+  - htop              # Lightweight process monitoring
+  - vim               # Standard terminal editor (single editor policy)
+  - jq                # JSON parsing for automation & debugging
+  - tmux              # Persistent SSH sessions
+
+  # --- Networking & diagnostics ---
+  - iproute2          # Modern networking tools (ip, ss)
+  - dnsutils          # DNS troubleshooting (dig, nslookup)
+
+  # --- Common admin helpers (borderline, but practical) ---
+  - git               # Source inspection, hotfixes, infra debugging
+  - unzip             # Handling release archives
+  - sudo              # Explicit sudo presence for automation consistency
 
 timezone: UTC
 
