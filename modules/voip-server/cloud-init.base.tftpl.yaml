@@ -41,9 +41,9 @@ packages:
 ############################
 # User & SSH setup (DETERMINISTIC)
 ############################
-
 users:
   - name: ubuntu
+    gecos: Ubuntu
     shell: /bin/bash
     groups: [sudo]
     sudo: "ALL=(ALL) NOPASSWD:ALL"
