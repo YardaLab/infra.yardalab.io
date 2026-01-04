@@ -7,7 +7,12 @@ resource "linode_instance" "this" {
   tags = var.tags
 
   metadata {
-    user_data = var.cloud_init_template
+    user_data = templatefile(
+      "${path.module}/cloud-init.base.tftpl.yaml",
+      {
+        ssh_public_keys = var.ssh_public_keys
+      }
+    )
   }
 }
 

@@ -15,50 +15,50 @@ package_upgrade: false
 
 packages:
   # --- Base utilities ---
-  - ca-certificates   # TLS trust store for HTTPS, APIs, package verification
-  - curl              # API calls, health checks, bootstrap scripts
-  - wget              # Simple file retrieval fallback
-  - gnupg             # Key verification (signatures, repo trust)
-  - lsb-release       # OS metadata for scripts & diagnostics
+  - ca-certificates
+  - curl
+  - wget
+  - gnupg
+  - lsb-release
 
   # --- System & debugging ---
-  - htop              # Lightweight process monitoring
-  - vim               # Standard terminal editor (single editor policy)
-  - jq                # JSON parsing for automation & debugging
-  - tmux              # Persistent SSH sessions
+  - htop
+  - vim
+  - jq
+  - tmux
 
   # --- Networking & diagnostics ---
-  - iproute2          # Modern networking tools (ip, ss)
-  - dnsutils          # DNS troubleshooting (dig, nslookup)
+  - iproute2
+  - dnsutils
 
-  # --- Common admin helpers (borderline, but practical) ---
-  - git               # Source inspection, hotfixes, infra debugging
-  - unzip             # Handling release archives
-  - sudo              # Explicit sudo presence for automation consistency
+  # --- Common admin helpers ---
+  - git
+  - unzip
+  - sudo
 
 timezone: UTC
 
 ############################
-# User & SSH setup
+# User & SSH setup (DETERMINISTIC)
 ############################
 
 users:
-  - default
+  - name: ubuntu
+    shell: /bin/bash
+    groups: [sudo]
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    ssh_authorized_keys:
+      - ${ssh_public_key}
 
 disable_root: true
-
 ssh_pwauth: false
 
-ssh_authorized_keys:
-  # Injected via Terraform (templatefile)
-  # Example:
-  # - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@host
-
 ############################
-# SSH hardening
+# Files & configuration
 ############################
 
 write_files:
+  # --- SSH hardening ---
   - path: /etc/ssh/sshd_config.d/99-yardalab.conf
     owner: root:root
     permissions: "0644"
@@ -66,19 +66,13 @@ write_files:
       PasswordAuthentication no
       PermitRootLogin no
       ChallengeResponseAuthentication no
+      PubkeyAuthentication yes
       UsePAM yes
       X11Forwarding no
       AllowTcpForwarding no
       AllowAgentForwarding no
 
-############################
-# Security hardening (lightweight)
-############################
-
-# Enable unattended security upgrades
-package_reboot_if_required: true
-
-write_files:
+  # --- Unattended upgrades ---
   - path: /etc/apt/apt.conf.d/20auto-upgrades
     owner: root:root
     permissions: "0644"
@@ -86,15 +80,7 @@ write_files:
       APT::Periodic::Update-Package-Lists "1";
       APT::Periodic::Unattended-Upgrade "1";
 
-############################
-# Logging & observability
-############################
-
-# Persist cloud-init logs
-output:
-  all: "| tee -a /var/log/cloud-init-output.log"
-
-write_files:
+  # --- Persistent journald ---
   - path: /etc/systemd/journald.conf.d/yardalab.conf
     owner: root:root
     permissions: "0644"
@@ -106,8 +92,13 @@ write_files:
       MaxRetentionSec=1month
 
 ############################
-# Finalization
+# Logging & finalization
 ############################
+
+package_reboot_if_required: true
+
+output:
+  all: "| tee -a /var/log/cloud-init-output.log"
 
 runcmd:
   - systemctl restart ssh
