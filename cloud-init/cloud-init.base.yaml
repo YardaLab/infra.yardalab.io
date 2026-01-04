@@ -1,0 +1,102 @@
+#cloud-config
+#
+# YardaLab base cloud-init
+# ------------------------
+# Minimal, opinionated, and reusable baseline for all VPS deployments.
+# Target OS: Ubuntu 22.04 LTS
+#
+
+############################
+# System bootstrap
+############################
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - jq
+  - htop
+  - unzip
+  - vim
+  - git
+  - sudo
+
+timezone: UTC
+
+############################
+# User & SSH setup
+############################
+
+users:
+  - default
+
+disable_root: true
+
+ssh_pwauth: false
+
+ssh_authorized_keys:
+  # Injected via Terraform (templatefile)
+  # Example:
+  # - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@host
+
+############################
+# SSH hardening
+############################
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-yardalab.conf
+    owner: root:root
+    permissions: "0644"
+    content: |
+      PasswordAuthentication no
+      PermitRootLogin no
+      ChallengeResponseAuthentication no
+      UsePAM yes
+      X11Forwarding no
+      AllowTcpForwarding no
+      AllowAgentForwarding no
+
+############################
+# Security hardening (lightweight)
+############################
+
+# Enable unattended security upgrades
+package_reboot_if_required: true
+
+write_files:
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    owner: root:root
+    permissions: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+
+############################
+# Logging & observability
+############################
+
+# Persist cloud-init logs
+output:
+  all: "| tee -a /var/log/cloud-init-output.log"
+
+write_files:
+  - path: /etc/systemd/journald.conf.d/yardalab.conf
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Journal]
+      Storage=persistent
+      SystemMaxUse=200M
+      RuntimeMaxUse=50M
+      MaxRetentionSec=1month
+
+############################
+# Finalization
+############################
+
+runcmd:
+  - systemctl restart ssh
+  - systemctl restart systemd-journald
