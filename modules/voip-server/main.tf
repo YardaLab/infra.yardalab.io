@@ -4,32 +4,18 @@
 ############################################
 
 ############################################
-# StackScript definition (INLINE – correct)
+# StackScript definition (INLINE)
 ############################################
 
 resource "linode_stackscript" "voip" {
   label       = "yl-voip-bootstrap"
-  description = "Install Asterisk PBX (YardaLab VoIP) and enable root SSH via key"
+  description = "Install Asterisk PBX (YardaLab VoIP)"
   images      = ["linode/ubuntu22.04"]
   is_public   = false
 
   script = <<-EOT
 #!/bin/bash
 set -euxo pipefail
-
-# ------------------------------------------------------------
-# Enable root SSH access via public key (DEV / DEBUG)
-# ------------------------------------------------------------
-
-mkdir -p /root/.ssh
-chmod 700 /root/.ssh
-
-cat <<EOF >/root/.ssh/authorized_keys
-${join("\n", var.ssh_public_keys)}
-EOF
-
-chmod 600 /root/.ssh/authorized_keys
-chown -R root:root /root/.ssh
 
 # ------------------------------------------------------------
 # Asterisk PBX bootstrap
@@ -68,6 +54,9 @@ resource "linode_instance" "this" {
   image  = var.image
 
   tags = var.tags
+
+  # DEV / DEBUG access (password-based SSH)
+  root_pass = var.root_password
 
   stackscript_id = linode_stackscript.voip.id
 }
