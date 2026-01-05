@@ -1,3 +1,20 @@
+############################################
+# Linode StackScript – Asterisk bootstrap
+############################################
+
+resource "linode_stackscript" "voip" {
+  label       = "yl-voip-bootstrap"
+  description = "Install Asterisk PBX (YardaLab VoIP)"
+  images      = ["linode/ubuntu22.04"]
+  is_public   = false
+
+  script = file("${path.module}/stackscript/asterisk.sh")
+}
+
+############################################
+# Linode Instance
+############################################
+
 resource "linode_instance" "this" {
   label  = var.name
   region = var.region
@@ -6,31 +23,7 @@ resource "linode_instance" "this" {
 
   tags = var.tags
 
-  metadata {
-    user_data = local.cloud_init
-  }
-}
-
-############################################
-# Cloud-init composition (multipart MIME)
-############################################
-
-locals {
-  cloud_init = templatefile(
-    "${path.module}/cloud-init/cloud-init.multipart.tftpl",
-    {
-      base_cloud_init = templatefile(
-        "${path.module}/cloud-init/cloud-init.base.tftpl.yaml",
-        {
-          ssh_public_keys = var.ssh_public_keys
-        }
-      )
-
-      asterisk_cloud_init = file(
-        "${path.module}/cloud-init/asterisk.install.yaml"
-      )
-    }
-  )
+  stackscript_id = linode_stackscript.voip.id
 }
 
 ############################################
