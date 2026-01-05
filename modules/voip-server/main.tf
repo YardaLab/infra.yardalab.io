@@ -7,14 +7,29 @@ resource "linode_instance" "this" {
   tags = var.tags
 
   metadata {
-    user_data = templatefile(
+    user_data = local.cloud_init
+  }
+}
+
+############################################
+# Cloud-init composition
+############################################
+
+locals {
+  cloud_init = join("\n", [
+    templatefile(
       "${path.module}/cloud-init.base.tftpl.yaml",
       {
         ssh_public_keys = var.ssh_public_keys
       }
-    )
-  }
+    ),
+    file("${path.module}/asterisk.install.yaml")
+  ])
 }
+
+############################################
+# Firewall rule definitions
+############################################
 
 locals {
   # SSH – admin access only

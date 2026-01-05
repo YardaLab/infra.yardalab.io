@@ -1,0 +1,45 @@
+#cloud-config
+#
+# Asterisk installation overlay
+# Ticket: IYI-63
+# Purpose: Install Asterisk PBX using official Ubuntu repositories
+#
+
+############################
+# APT configuration
+############################
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - asterisk
+  - asterisk-core-sounds-en-wav
+  - asterisk-moh-opsound-wav
+
+############################
+# Non-interactive install
+############################
+
+apt:
+  preserve_sources_list: true
+
+############################
+# Service handling
+############################
+
+runcmd:
+  # Ensure asterisk service is enabled but do not expose anything
+  - systemctl daemon-reload
+  - systemctl enable asterisk
+  - systemctl restart asterisk
+
+############################
+# Verification (non-blocking)
+############################
+
+final_message: |
+  Asterisk installation completed.
+  Verify with:
+    - asterisk -V
+    - systemctl status asterisk
