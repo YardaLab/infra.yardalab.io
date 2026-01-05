@@ -17,6 +17,11 @@ resource "linode_stackscript" "voip" {
 #!/bin/bash
 set -euxo pipefail
 
+# TEMP: Enable root SSH login via password (DEV ONLY)
+sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+systemctl restart sshd
+
 # ------------------------------------------------------------
 # Asterisk PBX bootstrap
 # ------------------------------------------------------------
