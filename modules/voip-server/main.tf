@@ -17,11 +17,6 @@ resource "linode_stackscript" "voip" {
 #!/bin/bash
 set -euxo pipefail
 
-# TEMP: Enable root SSH login via password (DEV ONLY)
-sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
-sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
-systemctl restart sshd
-
 # ------------------------------------------------------------
 # Asterisk PBX bootstrap
 # ------------------------------------------------------------
@@ -60,8 +55,8 @@ resource "linode_instance" "this" {
 
   tags = var.tags
 
-  # DEV / DEBUG access (password-based SSH)
-  root_pass = var.root_password
+  # SSH access via public keys (ubuntu user)
+  authorized_keys = var.ssh_public_keys
 
   stackscript_id = linode_stackscript.voip.id
 }
@@ -81,7 +76,7 @@ locals {
     }
   ]
 
-  # SIP signaling (UDP / TCP based on input)
+  # SIP signaling
   sip_firewall_rules = [
     for p in var.sip_ports : {
       label    = "sip-${lower(p.protocol)}-${p.port}"
@@ -101,8 +96,6 @@ locals {
     }
   ]
 
-  # Unified inbound firewall rule set
-  # tflint-ignore: terraform_unused_declarations
   inbound_firewall_rules = concat(
     local.ssh_firewall_rules,
     local.sip_firewall_rules,

@@ -33,12 +33,6 @@ variable "tags" {
 # Access / bootstrap
 ############################################
 
-variable "root_password" {
-  description = "Root password for Linode instance (DEV / DEBUG only)"
-  type        = string
-  sensitive   = true
-}
-
 variable "ssh_public_keys" {
   description = "List of SSH public keys allowed to access the server (used for future key-based auth)."
   type        = list(string)
