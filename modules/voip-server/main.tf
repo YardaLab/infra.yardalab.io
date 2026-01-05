@@ -1,14 +1,60 @@
 ############################################
-# Linode StackScript – Asterisk bootstrap
+# Linode VoIP Server – Asterisk via StackScript
+# File: modules/voip-server/main.tf
+############################################
+
+############################################
+# StackScript definition (INLINE – correct)
 ############################################
 
 resource "linode_stackscript" "voip" {
   label       = "yl-voip-bootstrap"
-  description = "Install Asterisk PBX (YardaLab VoIP)"
+  description = "Install Asterisk PBX (YardaLab VoIP) and enable root SSH via key"
   images      = ["linode/ubuntu22.04"]
   is_public   = false
 
-  script = file("${path.module}/stackscript/asterisk.sh")
+  script = <<-EOT
+#!/bin/bash
+set -euxo pipefail
+
+# ------------------------------------------------------------
+# Enable root SSH access via public key (DEV / DEBUG)
+# ------------------------------------------------------------
+
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+
+cat <<EOF >/root/.ssh/authorized_keys
+${join("\n", var.ssh_public_keys)}
+EOF
+
+chmod 600 /root/.ssh/authorized_keys
+chown -R root:root /root/.ssh
+
+# ------------------------------------------------------------
+# Asterisk PBX bootstrap
+# ------------------------------------------------------------
+
+export DEBIAN_FRONTEND=noninteractive
+
+echo "[*] Updating system"
+apt-get update -y
+
+echo "[*] Installing Asterisk"
+apt-get install -y \
+  asterisk \
+  asterisk-core-sounds-en-wav \
+  asterisk-moh-opsound-wav
+
+echo "[*] Enabling Asterisk service"
+systemctl enable asterisk
+systemctl start asterisk
+
+echo "[*] Asterisk version:"
+asterisk -V || true
+
+echo "[*] StackScript completed"
+EOT
 }
 
 ############################################
