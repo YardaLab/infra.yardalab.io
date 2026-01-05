@@ -12,19 +12,25 @@ resource "linode_instance" "this" {
 }
 
 ############################################
-# Cloud-init composition
+# Cloud-init composition (multipart MIME)
 ############################################
 
 locals {
-  cloud_init = join("\n", [
-    templatefile(
-      "${path.module}/cloud-init.base.tftpl.yaml",
-      {
-        ssh_public_keys = var.ssh_public_keys
-      }
-    ),
-    file("${path.module}/asterisk.install.yaml")
-  ])
+  cloud_init = templatefile(
+    "${path.module}/cloud-init/cloud-init.multipart.tftpl",
+    {
+      base_cloud_init = templatefile(
+        "${path.module}/cloud-init/cloud-init.base.tftpl.yaml",
+        {
+          ssh_public_keys = var.ssh_public_keys
+        }
+      )
+
+      asterisk_cloud_init = file(
+        "${path.module}/cloud-init/asterisk.install.yaml"
+      )
+    }
+  )
 }
 
 ############################################
