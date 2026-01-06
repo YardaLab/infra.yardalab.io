@@ -1,10 +1,13 @@
 ############################################
-# Linode VoIP Server – Asterisk via StackScript
-# File: modules/voip-server/main.tf
+# Linode VoIP Server – Asterisk bootstrap
 ############################################
 
 ############################################
-# StackScript definition (INLINE)
+# StackScript: Asterisk installation
+#
+# NOTE:
+# - SSH access is handled exclusively via Linode-managed SSH keys
+# - No root password authentication is used
 ############################################
 
 resource "linode_stackscript" "voip" {
@@ -15,54 +18,67 @@ resource "linode_stackscript" "voip" {
 
   script = <<-EOT
 #!/bin/bash
-set -euxo pipefail
-
-# ------------------------------------------------------------
-# Asterisk PBX bootstrap
-# ------------------------------------------------------------
+set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo "[*] Updating system"
+# Update package index
 apt-get update -y
 
-echo "[*] Installing Asterisk"
-apt-get install -y \
-  asterisk \
-  asterisk-core-sounds-en-wav \
-  asterisk-moh-opsound-wav
+# Install Asterisk PBX
+apt-get install -y asterisk
 
-echo "[*] Enabling Asterisk service"
+# Enable and start Asterisk service
 systemctl enable asterisk
 systemctl start asterisk
 
-echo "[*] Asterisk version:"
+# Print installed Asterisk version (non-fatal)
 asterisk -V || true
-
-echo "[*] StackScript completed"
 EOT
 }
 
 ############################################
 # Linode Instance
+#
+# SSH access:
+# - Root login via SSH key only
+# - Key is managed by Linode and injected automatically
 ############################################
 
 resource "linode_instance" "this" {
   label  = var.name
   region = var.region
   type   = var.instance_type
-  image  = var.image
+  image  = "linode/ubuntu22.04"
+
+  # Inject Linode-managed SSH key into root's authorized_keys
+  authorized_keys = [
+    linode_sshkey.jarda.ssh_key
+  ]
 
   tags = var.tags
-
-  # SSH access via public keys (ubuntu user)
-  authorized_keys = var.ssh_public_keys
 
   stackscript_id = linode_stackscript.voip.id
 }
 
 ############################################
-# Firewall rule definitions
+# Linode SSH Key
+#
+# IMPORTANT:
+# - This does NOT generate a key
+# - The public key must already exist locally
+############################################
+
+resource "linode_sshkey" "jarda" {
+  label   = "jarda-laptop"
+  ssh_key = chomp(file("~/.ssh/id_ed25519.pub"))
+}
+
+############################################
+# Firewall rule aggregation (SPECIFICATION ONLY)
+#
+# This local value is used for outputs and documentation.
+# It does NOT create any firewall resources by itself.
 ############################################
 
 locals {
