@@ -71,7 +71,7 @@ resource "linode_instance" "this" {
 
 resource "linode_sshkey" "jarda" {
   label   = "jarda-laptop"
-  ssh_key = chomp(file("~/.ssh/id_ed25519.pub"))
+  ssh_key = var.ssh_public_key
 }
 
 ############################################

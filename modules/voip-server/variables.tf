@@ -30,6 +30,15 @@ variable "tags" {
 }
 
 ############################################
+# SSH access
+############################################
+
+variable "ssh_public_key" {
+  description = "Public SSH key injected into the root account via Linode SSH key"
+  type        = string
+}
+
+############################################
 # Firewall-related variables
 ############################################
 
